@@ -1,0 +1,14 @@
+
+.DS_Store
+build
+.git
+*.egg-info
+dist
+output
+data/coco
+data/aacas
+backup
+weights/*.weights
+weights/darknet53.conv.74
+__pycache__
+checkpoints
