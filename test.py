@@ -95,7 +95,7 @@ if __name__ == "__main__":
         conf_thres=opt.conf_thres,
         nms_thres=opt.nms_thres,
         img_size=opt.img_size,
-        batch_size=8,
+        batch_size=1, ###
     )
 
     print("Average Precisions:")

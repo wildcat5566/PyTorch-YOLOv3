@@ -22,6 +22,9 @@ from torchvision import transforms
 from torch.autograd import Variable
 import torch.optim as optim
 
+import warnings
+warnings.simplefilter("ignore")
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--epochs", type=int, default=100, help="number of epochs")
@@ -157,7 +160,7 @@ if __name__ == "__main__":
                 conf_thres=0.5,
                 nms_thres=0.5,
                 img_size=opt.img_size,
-                batch_size=8,
+                batch_size=1, ######
             )
             evaluation_metrics = [
                 ("val_precision", precision.mean()),

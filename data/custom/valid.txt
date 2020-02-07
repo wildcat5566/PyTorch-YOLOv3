@@ -1,1 +1,2 @@
-data/custom/images/train.jpg
+data/custom/images/ball1.jpg
+data/custom/images/balloon1.jpg
