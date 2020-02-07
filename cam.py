@@ -22,6 +22,9 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.ticker import NullLocator
 
+# Run command:
+# python cam.py --image_folder data/samples --model_def config/yolov3-tiny.cfg --weights_path weights/yolov3-tiny.weights
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--image_folder", type=str, default="data/samples", help="path to dataset")
