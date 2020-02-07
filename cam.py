@@ -23,7 +23,7 @@ import matplotlib.patches as patches
 from matplotlib.ticker import NullLocator
 
 # Run command:
-# python cam.py --image_folder data/samples --model_def config/yolov3-tiny.cfg --weights_path weights/yolov3-tiny.weights
+# python cam.py --model_def config/yolov3-tiny.cfg --weights_path weights/yolov3-tiny.weights
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -67,9 +67,6 @@ if __name__ == "__main__":
 
     Tensor = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
 
-    imgs = []  # Stores image paths
-    #img_detections = []  # Stores detections for each image index
-
     # Bounding-box colors
     cmap = plt.get_cmap("tab20b")
     colors = [cmap(i) for i in np.linspace(0, 1, 20)]
@@ -83,7 +80,7 @@ if __name__ == "__main__":
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         x = torch.from_numpy(frame.transpose(2, 0, 1))
         x = x.unsqueeze(0).float()
-        print(x.shape)
+        #print(x.shape)
 
         # Apply letterbox resize
         _, _, h, w = x.size()
@@ -121,7 +118,6 @@ if __name__ == "__main__":
                     print("\t+ Label: %s, Conf: %.5f" % (classes[int(cls_pred)], cls_conf.item()))
                     box_w = x2 - x1
                     box_h = y2 - y1
-                    #print(box_w, box_h)
                     cv2.line(img=frame, pt1=(x1,y1), pt2=(x1,y2), color=(255, 0, 0), thickness=2, lineType=8, shift=0)
                     cv2.line(img=frame, pt1=(x2,y1), pt2=(x2,y2), color=(255, 0, 0), thickness=2, lineType=8, shift=0)
                     cv2.line(img=frame, pt1=(x1,y2), pt2=(x2,y2), color=(255, 0, 0), thickness=2, lineType=8, shift=0)
@@ -131,6 +127,7 @@ if __name__ == "__main__":
                     frame = cv2.putText(frame, classes[int(cls_pred)], (x1,y2), cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, color=(255, 0, 0), thickness=2)
 
         # Display the resulting frame
+        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
         cv2.imshow('frame',frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
