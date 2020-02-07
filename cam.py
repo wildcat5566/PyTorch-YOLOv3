@@ -11,23 +11,13 @@ import datetime
 import argparse
 
 import cv2
-from PIL import Image
-
 import torch
-from torch.utils.data import DataLoader
-from torchvision import datasets
-from torch.autograd import Variable
-
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-from matplotlib.ticker import NullLocator
 
 # Run command:
 # python cam.py --model_def config/yolov3-tiny.cfg --weights_path weights/yolov3-tiny.weights
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--image_folder", type=str, default="data/samples", help="path to dataset")
     parser.add_argument("--model_def", type=str, default="config/yolov3.cfg", help="path to model definition file")
     parser.add_argument("--weights_path", type=str, default="weights/yolov3.weights", help="path to weights file")
     parser.add_argument("--class_path", type=str, default="data/coco.names", help="path to class label file")
@@ -41,7 +31,6 @@ if __name__ == "__main__":
     print(opt)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
     os.makedirs("output", exist_ok=True)
 
     # Set up model
@@ -55,21 +44,8 @@ if __name__ == "__main__":
         model.load_state_dict(torch.load(opt.weights_path))
 
     model.eval()  # Set in evaluation mode
-
-    dataloader = DataLoader(
-        ImageFolder(opt.image_folder, img_size=opt.img_size),
-        batch_size=opt.batch_size,
-        shuffle=False,
-        num_workers=opt.n_cpu,
-    )
-
     classes = load_classes(opt.class_path)  # Extracts class labels from file
-
     Tensor = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
-
-    # Bounding-box colors
-    cmap = plt.get_cmap("tab20b")
-    colors = [cmap(i) for i in np.linspace(0, 1, 20)]
 
     cap = cv2.VideoCapture(0)
 
@@ -80,7 +56,6 @@ if __name__ == "__main__":
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         x = torch.from_numpy(frame.transpose(2, 0, 1))
         x = x.unsqueeze(0).float()
-        #print(x.shape)
 
         # Apply letterbox resize
         _, _, h, w = x.size()
@@ -107,12 +82,10 @@ if __name__ == "__main__":
         # Draw bounding boxes and labels of detections
         for detections in img_detections:
             if detections is not None:
-                #print(detections)
                 # Rescale boxes to original image
                 detections = rescale_boxes(detections, opt.img_size, frame.shape[:2])
                 unique_labels = detections[:, -1].cpu().unique()
                 n_cls_preds = len(unique_labels)
-                bbox_colors = random.sample(colors, n_cls_preds)
                 for x1, y1, x2, y2, conf, cls_conf, cls_pred in detections:
 
                     print("\t+ Label: %s, Conf: %.5f" % (classes[int(cls_pred)], cls_conf.item()))
@@ -132,10 +105,5 @@ if __name__ == "__main__":
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-    # When everything done, release the capture
     cap.release()
     cv2.destroyAllWindows()
-
-
-
-
