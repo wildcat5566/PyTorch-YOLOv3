@@ -6,6 +6,7 @@ A minimal PyTorch implementation of YOLOv3, with support for training, inference
     $ git clone https://github.com/eriklindernoren/PyTorch-YOLOv3
     $ cd PyTorch-YOLOv3/
     $ sudo pip3 install -r requirements.txt
+    $ sudo pip3 install pillow==6.0.0
 
 ##### Download pretrained weights
     $ cd weights/
@@ -14,20 +15,12 @@ A minimal PyTorch implementation of YOLOv3, with support for training, inference
 ##### Download COCO
     $ cd data/
     $ bash get_coco_dataset.sh
-    
-## Test
-Evaluates the model on COCO test.
-
-    $ python3 test.py --weights_path weights/yolov3.weights
-
-| Model                   | mAP (min. 50 IoU) |
-| ----------------------- |:-----------------:|
-| YOLOv3 608 (paper)      | 57.9              |
-| YOLOv3 608 (this impl.) | 57.3              |
-| YOLOv3 416 (paper)      | 55.3              |
-| YOLOv3 416 (this impl.) | 55.5              |
 
 ## Inference
+##### Inference on webcam (Tiny yolo)
+    $ python cam.py --model_def config/yolov3-tiny.cfg --weights_path weights/yolov3-tiny.weights
+    
+##### Inference on images
 Uses pretrained weights to make predictions on images. Below table displays the inference times when using as inputs images scaled to 256x256. The ResNet backbone measurements are taken from the YOLOv3 paper. The Darknet-53 measurement marked shows the inference time of this implementation on my 1080ti card.
 
 | Backbone                | GPU      | FPS      |
@@ -43,6 +36,18 @@ Uses pretrained weights to make predictions on images. Below table displays the 
 <p align="center"><img src="assets/dog.png" width="480"\></p>
 <p align="center"><img src="assets/traffic.png" width="480"\></p>
 <p align="center"><img src="assets/messi.png" width="480"\></p>
+    
+## Test
+Evaluates the model on COCO test.
+
+    $ python3 test.py --weights_path weights/yolov3.weights
+
+| Model                   | mAP (min. 50 IoU) |
+| ----------------------- |:-----------------:|
+| YOLOv3 608 (paper)      | 57.9              |
+| YOLOv3 608 (this impl.) | 57.3              |
+| YOLOv3 416 (paper)      | 55.3              |
+| YOLOv3 416 (this impl.) | 55.5              |
 
 ## Train
 ```
