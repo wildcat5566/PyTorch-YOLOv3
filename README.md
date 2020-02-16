@@ -7,6 +7,8 @@ A minimal PyTorch implementation of YOLOv3, with support for training, inference
     $ cd PyTorch-YOLOv3/
     $ sudo pip3 install -r requirements.txt
     $ sudo pip3 install pillow==6.0.0
+    $ sudo apt-get install python-opencv
+    $ pip3 install python-opencv
 
 ##### Download pretrained weights
     $ cd weights/
