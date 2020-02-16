@@ -1,14 +1,14 @@
 # PyTorch-YOLOv3
 A minimal PyTorch implementation of YOLOv3, with support for training, inference and evaluation.
 
-## Installation
+## Installation (On Python 3.7 only)
 ##### Clone and install requirements
     $ git clone https://github.com/wildcat5566/PyTorch-YOLOv3
     $ cd PyTorch-YOLOv3/
-    $ sudo pip3 install -r requirements.txt
-    $ sudo pip3 install pillow==6.0.0
+    $ pip install -r requirements.txt
+    $ pip install pillow==6.0.0
     $ sudo apt-get install python-opencv
-    $ pip3 install python-opencv
+    $ pip install opencv-python
 
 ##### Download pretrained weights
     $ cd weights/
