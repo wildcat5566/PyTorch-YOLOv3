@@ -178,4 +178,7 @@ if __name__ == "__main__":
             print(f"---- mAP {AP.mean()}")
 
         if epoch % opt.checkpoint_interval == 0:
-            torch.save(model.state_dict(), f"checkpoints/yolov3_ckpt_%d.pth" % epoch)
+            if "tiny" in opt.pretrained_weights:
+                torch.save(model.state_dict(), f"checkpoints/yolov3_tiny_ckpt_%d.pth" % epoch)
+            else:
+                torch.save(model.state_dict(), f"checkpoints/yolov3_ckpt_%d.pth" % epoch)
