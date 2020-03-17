@@ -6,10 +6,13 @@ build
 dist
 output
 data/coco
-data/aacas
-data/custom
-backup
-weights
+
+weights/*.weights
+weights/darknet53.conv.74
+weights/yolov3-tiny.conv.15
+
 __pycache__
 checkpoints
 logs
+.ipynb-checkpoints
+*.ipynb
