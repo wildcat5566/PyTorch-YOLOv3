@@ -10,11 +10,13 @@ import time
 import datetime
 import argparse
 
+#print(sys.path)
 import cv2
 import torch
 
-# Run command:
-# python cam.py --model_def config/yolov3-tiny.cfg --weights_path weights/yolov3-tiny.weights
+sys.path.append("/opt/ros/kinetic/lib/python2.7/dist-packages")
+import rospy
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

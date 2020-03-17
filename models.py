@@ -137,7 +137,7 @@ class YOLOLayer(nn.Module):
         # Tensors for cuda support
         FloatTensor = torch.cuda.FloatTensor if x.is_cuda else torch.FloatTensor
         LongTensor = torch.cuda.LongTensor if x.is_cuda else torch.LongTensor
-        ByteTensor = torch.cuda.ByteTensor if x.is_cuda else torch.ByteTensor
+        ByteTensor = torch.cuda.BoolTensor if x.is_cuda else torch.BoolTensor
 
         self.img_dim = img_dim
         num_samples = x.size(0)
@@ -277,6 +277,8 @@ class Darknet(nn.Module):
         cutoff = None
         if "darknet53.conv.74" in weights_path:
             cutoff = 75
+        elif "conv.15" in weights_path:
+            cutoff = 15
 
         ptr = 0
         for i, (module_def, module) in enumerate(zip(self.module_defs, self.module_list)):

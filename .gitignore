@@ -7,9 +7,9 @@ dist
 output
 data/coco
 data/aacas
+data/custom
 backup
-weights/*.weights
-weights/darknet53.conv.74
+weights
 __pycache__
 checkpoints
 logs
