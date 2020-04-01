@@ -48,7 +48,8 @@ if __name__ == "__main__":
         model.load_darknet_weights(opt.weights_path)
     else:
         # Load checkpoint weights
-        model.load_state_dict(torch.load(opt.weights_path))
+        model.load_state_dict(torch.load(opt.weights_path, map_location=lambda storage, loc: storage)) #for cpu
+        #model.load_state_dict(torch.load(opt.weights_path))
 
     model.eval()  # Set in evaluation mode
 
@@ -102,16 +103,20 @@ if __name__ == "__main__":
         plt.figure()
         fig, ax = plt.subplots(1)
         ax.imshow(img)
-
+        ###### Open text file ######
+        filename = path.split("/")[-1].split(".")[0]
+        fname = "logs/{}.txt".format(filename)
+        txtfile = open(fname, "w")
         # Draw bounding boxes and labels of detections
         if detections is not None:
+            
             # Rescale boxes to original image
             detections = rescale_boxes(detections, opt.img_size, img.shape[:2])
             unique_labels = detections[:, -1].cpu().unique()
             n_cls_preds = len(unique_labels)
             bbox_colors = random.sample(colors, n_cls_preds)
             for x1, y1, x2, y2, conf, cls_conf, cls_pred in detections:
-
+                #print((x1,y1), (x2,y2))
                 print("\t+ Label: %s, Conf: %.5f" % (classes[int(cls_pred)], cls_conf.item()))
 
                 box_w = x2 - x1
@@ -131,6 +136,14 @@ if __name__ == "__main__":
                     verticalalignment="top",
                     bbox={"color": color, "pad": 0},
                 )
+                _x1 = x1.numpy()
+                _y1 = y1.numpy()
+                _x2 = x2.numpy()
+                _y2 = y2.numpy()
+                _cls = int(cls_pred.numpy())
+                #print(_x1, _y1, _x2, _y2, _cls)
+                txtfile.write("{:.4f},{:.4f},{:.4f},{:.4f},{}\n".format(_x1, _y1, _x2, _y2, _cls))
+        txtfile.close()
 
         # Save generated image with detections
         plt.axis("off")
