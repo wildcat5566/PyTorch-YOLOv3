@@ -6,6 +6,7 @@ build
 dist
 output
 data/coco
+data/custom
 
 weights/*.weights
 weights/darknet53.conv.74
