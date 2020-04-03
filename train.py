@@ -40,6 +40,8 @@ if __name__ == "__main__":
     parser.add_argument("--evaluation_interval", type=int, default=1, help="interval evaluations on validation set")
     parser.add_argument("--compute_map", default=False, help="if True computes mAP every tenth batch")
     parser.add_argument("--multiscale_training", default=True, help="allow for multi-scale training")
+    parser.add_argument("--start_epoch", type=int, default=0, help="starting epoch (if resuming from checkpoint), for logs")
+
     opt = parser.parse_args()
     print(opt)
 
@@ -99,6 +101,10 @@ if __name__ == "__main__":
 
     train_maps = []
     valid_maps= []
+    now = datetime.datetime.now()
+    ts = now.strftime("%Y-%m-%d-%H-%M-%S")
+    train_logs = open("logs/train-logs-" + ts + ".txt", "w")
+    valid_logs = open("logs/valid-logs-" + ts + ".txt", "w")
 
     for epoch in range(opt.epochs):
         model.train()
@@ -181,6 +187,8 @@ if __name__ == "__main__":
             print(AsciiTable(ap_table).table)
             print(f"---- mAP (Train) {AP.mean()}")
             train_maps.append(AP.mean())
+            train_logs.write("{},{:.6f}\n".format(opt.start_epoch + epoch + 1, AP.mean()))
+            train_logs.flush()
 
             print("\n---- Evaluating Model ---- (Validation Set)")
             # Evaluate the model on the validation set
@@ -208,7 +216,8 @@ if __name__ == "__main__":
             print(AsciiTable(ap_table).table)
             print(f"---- mAP (Valid) {AP.mean()}")
             valid_maps.append(AP.mean())
-
+            valid_logs.write("{},{:.6f}\n".format(opt.start_epoch + epoch + 1, AP.mean()))
+            valid_logs.flush()
 
         if (epoch+1) % opt.checkpoint_interval == 0:
             if "tiny" in opt.pretrained_weights:
@@ -224,3 +233,5 @@ if __name__ == "__main__":
     plt.legend(['Training mAP', 'Validation mAP'])
     plt.title('Training & Validation mAP')
     plt.savefig('map.png')
+    train_logs.close()
+    valid_logs.close()
