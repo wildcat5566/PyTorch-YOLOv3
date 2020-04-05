@@ -221,9 +221,9 @@ if __name__ == "__main__":
 
         if (epoch+1) % opt.checkpoint_interval == 0:
             if "tiny" in opt.pretrained_weights:
-                torch.save(model.state_dict(), f"checkpoints/yolov3_tiny_ckpt_%d.pth" % epoch)
+                torch.save(model.state_dict(), f"checkpoints/yolov3_tiny_ckpt_%d.pth" % (epoch + opt.start_epoch + 1))
             else:
-                torch.save(model.state_dict(), f"checkpoints/yolov3_ckpt_%d.pth" % epoch)
+                torch.save(model.state_dict(), f"checkpoints/yolov3_ckpt_%d.pth" % (epoch + opt.start_epoch + 1))
 
     t = [i+1 for i in range(opt.epochs)]
     plt.plot(t, train_maps)

@@ -7,6 +7,7 @@ dist
 output
 data/coco
 data/custom
+data/samples
 
 weights/*.weights
 weights/darknet53.conv.74
