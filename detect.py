@@ -33,6 +33,7 @@ if __name__ == "__main__":
     parser.add_argument("--n_cpu", type=int, default=0, help="number of cpu threads to use during batch generation")
     parser.add_argument("--img_size", type=int, default=416, help="size of each image dimension")
     parser.add_argument("--checkpoint_model", type=str, help="path to checkpoint model")
+    parser.add_argument("--log", type=bool, default=False, help="log detected boxes")
     opt = parser.parse_args()
     print(opt)
 
@@ -106,9 +107,10 @@ if __name__ == "__main__":
         fig, ax = plt.subplots(1)
         ax.imshow(img)
         ###### Open text file ######
-        filename = path.split("/")[-1].split(".")[0]
-        fname = "logs/{}.txt".format(filename)
-        txtfile = open(fname, "w")
+        if opt.log:
+            filename = path.split("/")[-1].split(".")[0]
+            fname = "output/{}.txt".format(filename)
+            txtfile = open(fname, "w")
         # Draw bounding boxes and labels of detections
         if detections is not None:
             
@@ -143,9 +145,10 @@ if __name__ == "__main__":
                 _x2 = x2.numpy()
                 _y2 = y2.numpy()
                 _cls = int(cls_pred.numpy())
-                #print(_x1, _y1, _x2, _y2, _cls)
-                txtfile.write("{:.4f},{:.4f},{:.4f},{:.4f},{}\n".format(_x1, _y1, _x2, _y2, _cls))
-        txtfile.close()
+                if opt.log:
+                    txtfile.write("{:.4f},{:.4f},{:.4f},{:.4f},{}\n".format(_x1, _y1, _x2, _y2, _cls))
+            if opt.log:
+                txtfile.close()
 
         # Save generated image with detections
         plt.axis("off")
