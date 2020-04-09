@@ -34,6 +34,7 @@ if __name__ == "__main__":
     parser.add_argument("--img_size", type=int, default=416, help="size of each image dimension")
     parser.add_argument("--checkpoint_model", type=str, help="path to checkpoint model")
     parser.add_argument("--log", type=bool, default=False, help="log detected boxes")
+    parser.add_argument("--plot", type=bool, default=True, help="generate detection plots")
     opt = parser.parse_args()
     print(opt)
 
@@ -102,10 +103,11 @@ if __name__ == "__main__":
         print("(%d) Image: '%s'" % (img_i, path))
 
         # Create plot
-        img = np.array(Image.open(path))
-        plt.figure()
-        fig, ax = plt.subplots(1)
-        ax.imshow(img)
+        if opt.plot:
+            img = np.array(Image.open(path))
+            plt.figure()
+            fig, ax = plt.subplots(1)
+            ax.imshow(img)
         ###### Open text file ######
         if opt.log:
             filename = path.split("/")[-1].split(".")[0]
@@ -118,42 +120,47 @@ if __name__ == "__main__":
             detections = rescale_boxes(detections, opt.img_size, img.shape[:2])
             unique_labels = detections[:, -1].cpu().unique()
             n_cls_preds = len(unique_labels)
-            bbox_colors = random.sample(colors, n_cls_preds)
+            #bbox_colors = random.sample(colors, n_cls_preds)
+            bbox_colors = ["c", "m", "y", "k", "r", "g", "b"]
             for x1, y1, x2, y2, conf, cls_conf, cls_pred in detections:
                 #print((x1,y1), (x2,y2))
-                print("\t+ Label: %s, Conf: %.5f" % (classes[int(cls_pred)], cls_conf.item()))
+                if opt.plot:
+                    print("\t+ Label: %s, Conf: %.5f" % (classes[int(cls_pred)], cls_conf.item()))
 
-                box_w = x2 - x1
-                box_h = y2 - y1
+                    box_w = x2 - x1
+                    box_h = y2 - y1
 
-                color = bbox_colors[int(np.where(unique_labels == int(cls_pred))[0])]
-                # Create a Rectangle patch
-                bbox = patches.Rectangle((x1, y1), box_w, box_h, linewidth=2, edgecolor=color, facecolor="none")
-                # Add the bbox to the plot
-                ax.add_patch(bbox)
-                # Add label
-                plt.text(
-                    x1,
-                    y1,
-                    s=classes[int(cls_pred)],
-                    color="white",
-                    verticalalignment="top",
-                    bbox={"color": color, "pad": 0},
-                )
-                _x1 = x1.numpy()
-                _y1 = y1.numpy()
-                _x2 = x2.numpy()
-                _y2 = y2.numpy()
-                _cls = int(cls_pred.numpy())
+                    #color = bbox_colors[int(np.where(unique_labels == int(cls_pred))[0])]
+                    color = bbox_colors[int(cls_pred)%7]
+                    # Create a Rectangle patch
+                    bbox = patches.Rectangle((x1, y1), box_w, box_h, linewidth=2, edgecolor=color, facecolor="none")
+                    # Add the bbox to the plot
+                    ax.add_patch(bbox)
+                    # Add label
+                    """plt.text(
+                        x1,
+                        y1,
+                        s=classes[int(cls_pred)],
+                        color="white",
+                        verticalalignment="top",
+                        bbox={"color": color, "pad": 0},
+                    )"""
                 if opt.log:
+                    _x1 = x1.numpy()
+                    _y1 = y1.numpy()
+                    _x2 = x2.numpy()
+                    _y2 = y2.numpy()
+                    _cls = int(cls_pred.numpy())
                     txtfile.write("{:.4f},{:.4f},{:.4f},{:.4f},{}\n".format(_x1, _y1, _x2, _y2, _cls))
+
             if opt.log:
                 txtfile.close()
 
         # Save generated image with detections
-        plt.axis("off")
-        plt.gca().xaxis.set_major_locator(NullLocator())
-        plt.gca().yaxis.set_major_locator(NullLocator())
-        filename = path.split("/")[-1].split(".")[0]
-        plt.savefig(f"output/{filename}.png", bbox_inches="tight", pad_inches=0.0)
-        plt.close()
+        if opt.plot:
+            plt.axis("off")
+            plt.gca().xaxis.set_major_locator(NullLocator())
+            plt.gca().yaxis.set_major_locator(NullLocator())
+            filename = path.split("/")[-1].split(".")[0]
+            plt.savefig(f"output/{filename}.png", bbox_inches="tight", pad_inches=0.0)
+            plt.close()

@@ -83,7 +83,17 @@ class ListDataset(Dataset):
         img_path = self.img_files[index % len(self.img_files)].rstrip()
 
         # Extract image as PyTorch tensor
-        img = transforms.ToTensor()(Image.open(img_path).convert('RGB'))
+        if self.augment:
+            if np.random.random() < 0.2:
+                #img = transforms.Grayscale(3)(Image.open(img_path).convert('RGB'))
+                #img = transforms.ToTensor()(img)
+                img = transforms.ToTensor()(Image.open(img_path).convert('L'))
+                img = torch.cat([img, img, img], dim=0)
+            else:
+                img = transforms.ToTensor()(Image.open(img_path).convert('RGB'))
+
+        else:
+            img = transforms.ToTensor()(Image.open(img_path).convert('RGB'))
 
         # Handle images with less than three channels
         if len(img.shape) != 3:
