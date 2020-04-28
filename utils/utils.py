@@ -107,6 +107,16 @@ def ap_per_class(tp, conf, pred_cls, target_cls):
             # AP from recall-precision curve
             ap.append(compute_ap(recall_curve, precision_curve))
 
+            """f = open('{}.txt'.format(c), "w")
+            for _r in recall_curve:
+                f.write(str(_r))
+                f.write(",")
+            f.write('\n')
+            for _p in precision_curve:
+                f.write(str(_p))
+                f.write(",")
+            f.close()"""
+
     # Compute F1 score (harmonic mean of precision and recall)
     p, r, ap = np.array(p), np.array(r), np.array(ap)
     f1 = 2 * p * r / (p + r + 1e-16)
