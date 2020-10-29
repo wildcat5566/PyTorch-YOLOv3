@@ -84,11 +84,15 @@ class ListDataset(Dataset):
 
         # Extract image as PyTorch tensor
         if self.augment:
-            if np.random.random() < 0.2:
+            if np.random.random() < 0.3:
                 #img = transforms.Grayscale(3)(Image.open(img_path).convert('RGB'))
-                #img = transforms.ToTensor()(img)
+                #img = transforms.ToTensor()(img) #equivalent to below
                 img = transforms.ToTensor()(Image.open(img_path).convert('L'))
                 img = torch.cat([img, img, img], dim=0)
+                
+            elif np.random.random() < 0.7:
+                img = transforms.ColorJitter()(Image.open(img_path).convert('RGB'))
+                img = transforms.ToTensor()(img)
             else:
                 img = transforms.ToTensor()(Image.open(img_path).convert('RGB'))
 

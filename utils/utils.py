@@ -107,7 +107,7 @@ def ap_per_class(tp, conf, pred_cls, target_cls):
             # AP from recall-precision curve
             ap.append(compute_ap(recall_curve, precision_curve))
 
-            """f = open('{}.txt'.format(c), "w")
+            f = open('{}.txt'.format(c), "w")
             for _r in recall_curve:
                 f.write(str(_r))
                 f.write(",")
@@ -115,7 +115,7 @@ def ap_per_class(tp, conf, pred_cls, target_cls):
             for _p in precision_curve:
                 f.write(str(_p))
                 f.write(",")
-            f.close()"""
+            f.close()
 
     # Compute F1 score (harmonic mean of precision and recall)
     p, r, ap = np.array(p), np.array(r), np.array(ap)
@@ -308,7 +308,19 @@ def build_targets(pred_boxes, pred_cls, target, anchors, ignore_thres):
     gx, gy = gxy.t()
     gw, gh = gwh.t()
     gi, gj = gxy.long().t()
+    
+    ########## TODO(arthur77wang):
+    gi[gi < 0] = 0
+    gj[gj < 0] = 0
+    gi[gi > nG - 1] = nG - 1
+    gj[gj > nG - 1] = nG - 1
+    ###################
+    
     # Set masks
+    #obj_mask[b, best_n, gj, gi] = 1
+    #noobj_mask[b, best_n, gj, gi] = 0
+    gi = torch.clamp(gi, 0, noobj_mask.size()[2]-1)
+    gj = torch.clamp(gj, 0, noobj_mask.size()[3]-1)
     obj_mask[b, best_n, gj, gi] = 1
     noobj_mask[b, best_n, gj, gi] = 0
 

@@ -8,8 +8,10 @@ output
 data/coco
 data/custom
 data/samples
+output
 
 weights/*.weights
+weights/*.pth
 weights/darknet53.conv.74
 weights/yolov3-tiny.conv.15
 

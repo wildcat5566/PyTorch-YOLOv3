@@ -22,6 +22,8 @@ from torchvision import datasets
 from torchvision import transforms
 from torch.autograd import Variable
 import torch.optim as optim
+import torch.nn as nn
+torch.backends.cudnn.benchmark = False
 
 import warnings
 warnings.simplefilter("ignore")
@@ -31,9 +33,9 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", type=int, default=100, help="number of epochs")
     parser.add_argument("--batch_size", type=int, default=8, help="size of each image batch")
     parser.add_argument("--gradient_accumulations", type=int, default=2, help="number of gradient accums before step")
-    parser.add_argument("--model_def", type=str, default="config/yolov3.cfg", help="path to model definition file")
-    parser.add_argument("--data_config", type=str, default="config/coco.data", help="path to data config file")
-    parser.add_argument("--pretrained_weights", type=str, help="if specified starts from checkpoint model")
+    parser.add_argument("--model_def", type=str, default="config/yolov3-custom.cfg", help="path to model definition file")
+    parser.add_argument("--data_config", type=str, default="config/custom.data", help="path to data config file")
+    parser.add_argument("--pretrained_weights", type=str, default="weights/darknet53.conv.74", help="if specified starts from checkpoint model")
     parser.add_argument("--n_cpu", type=int, default=8, help="number of cpu threads to use during batch generation")
     parser.add_argument("--img_size", type=int, default=416, help="size of each image dimension")
     parser.add_argument("--checkpoint_interval", type=int, default=20, help="interval between saving model weights")
@@ -61,14 +63,18 @@ if __name__ == "__main__":
     # Initiate model
     model = Darknet(opt.model_def).to(device)
     model.apply(weights_init_normal)
+    
+    #model = nn.DataParallel(model, device_ids=[0,1,2,3,4,5,6,7])
 
     # If specified we start from checkpoint
     if opt.pretrained_weights:
         if opt.pretrained_weights.endswith(".pth"):
             model.load_state_dict(torch.load(opt.pretrained_weights))
         else:
-            model.load_darknet_weights(opt.pretrained_weights)
+            model.load_darknet_weights(opt.pretrained_weights) #model.module.load...
 
+    
+    
     # Get dataloader
     dataset = ListDataset(train_path, augment=True, multiscale=opt.multiscale_training)
     dataloader = torch.utils.data.DataLoader(
@@ -190,40 +196,42 @@ if __name__ == "__main__":
             train_logs.write("{},{:.6f}\n".format(opt.start_epoch + epoch + 1, AP.mean()))
             train_logs.flush()
 
-            print("\n---- Evaluating Model ---- (Validation Set)")
-            # Evaluate the model on the validation set
-            precision, recall, AP, f1, ap_class = evaluate(
-                model,
-                path=valid_path,
-                iou_thres=0.5,
-                conf_thres=0.5,
-                nms_thres=0.5,
-                img_size=opt.img_size,
-                batch_size=8, ######
-            )
-            evaluation_metrics = [
-                ("val_precision", precision.mean()),
-                ("val_recall", recall.mean()),
-                ("val_mAP", AP.mean()),
-                ("val_f1", f1.mean()),
-            ]
-            logger.list_of_scalars_summary(evaluation_metrics, epoch)
+            if True: #(epoch+1) % 10 ==0:
+                print("\n---- Evaluating Model ---- (Validation Set)")
+                # Evaluate the model on the validation set
+                precision, recall, AP, f1, ap_class = evaluate(
+                    model,
+                    path=valid_path,
+                    iou_thres=0.5,
+                    conf_thres=0.5,
+                    nms_thres=0.5,
+                    img_size=opt.img_size,
+                    batch_size=8, ######
+                )
+                evaluation_metrics = [
+                    ("val_precision", precision.mean()),
+                    ("val_recall", recall.mean()),
+                    ("val_mAP", AP.mean()),
+                    ("val_f1", f1.mean()),
+                ]
+                logger.list_of_scalars_summary(evaluation_metrics, epoch)
 
-            # Print class APs and mAP
-            ap_table = [["Index", "Class name", "AP"]]
-            for i, c in enumerate(ap_class):
-                ap_table += [[c, class_names[c], "%.5f" % AP[i]]]
-            print(AsciiTable(ap_table).table)
-            print(f"---- mAP (Valid) {AP.mean()}")
-            valid_maps.append(AP.mean())
-            valid_logs.write("{},{:.6f}\n".format(opt.start_epoch + epoch + 1, AP.mean()))
-            valid_logs.flush()
+                # Print class APs and mAP
+                ap_table = [["Index", "Class name", "AP"]]
+                for i, c in enumerate(ap_class):
+                    ap_table += [[c, class_names[c], "%.5f" % AP[i]]]
+                print(AsciiTable(ap_table).table)
+                print(f"---- mAP (Valid) {AP.mean()}")
+                valid_maps.append(AP.mean())
+                valid_logs.write("{},{:.6f}\n".format(opt.start_epoch + epoch + 1, AP.mean()))
+                valid_logs.flush()
 
         if (epoch+1) % opt.checkpoint_interval == 0:
             if "tiny" in opt.pretrained_weights:
                 torch.save(model.state_dict(), f"checkpoints/yolov3_tiny_ckpt_%d.pth" % (epoch + opt.start_epoch + 1))
             else:
-                torch.save(model.state_dict(), f"checkpoints/yolov3_ckpt_%d.pth" % (epoch + opt.start_epoch + 1))
+                #torch.save(model.state_dict(), f"checkpoints/yolov3_ckpt_%d.pth" % (epoch + opt.start_epoch + 1))
+                torch.save(model.state_dict(), "yolov3_drone_v2.pth")
 
     t = [i+1 for i in range(opt.epochs)]
     plt.plot(t, train_maps)
