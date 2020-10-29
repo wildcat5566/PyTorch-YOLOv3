@@ -20,3 +20,6 @@ checkpoints
 logs
 .ipynb-checkpoints
 *.ipynb
+*.png
+.datasets.py.swp
+
